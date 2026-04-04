@@ -24,6 +24,6 @@ services:
       - key: USDA_API_KEY
         sync: false
 
-  - type: pserv
-    name: simple-macro-tracker-db
+databases:
+  - name: simple-macro-tracker-db
     plan: free
