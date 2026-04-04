@@ -1,0 +1,41 @@
+<!-- custom_food_table.html — HTMX swap target after add/delete -->
+<div id="custom-food-table">
+{% if custom_foods %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead class="bg-gradient-to-r from-emerald-50 via-sky-50 to-rose-50 text-slate-500 uppercase text-xs">
+      <tr>
+        <th class="px-4 py-3 text-left">Name</th>
+        <th class="px-4 py-3 text-right">Cal/100g</th>
+        <th class="px-4 py-3 text-right">Protein</th>
+        <th class="px-4 py-3 text-right">Carbs</th>
+        <th class="px-4 py-3 text-right">Fat</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-white/80">
+      {% for food in custom_foods %}
+      <tr class="hover:bg-white/60 transition">
+        <td class="px-4 py-3 font-medium">{{ food.name }}</td>
+        <td class="px-4 py-3 text-right text-rose-500">{{ food.calories_per_100g }}</td>
+        <td class="px-4 py-3 text-right text-sky-600">{{ food.protein_per_100g }}g</td>
+        <td class="px-4 py-3 text-right text-amber-600">{{ food.carbs_per_100g }}g</td>
+        <td class="px-4 py-3 text-right text-emerald-600">{{ food.fat_per_100g }}g</td>
+        <td class="px-4 py-3 text-right">
+          <button
+            hx-delete="{% url 'tracker:delete_food' food.pk %}"
+            hx-target="#custom-food-table"
+            hx-swap="outerHTML"
+            hx-confirm="Delete {{ food.name }}?"
+            class="text-rose-400 hover:text-rose-600 text-xs font-medium"
+          >Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-slate-400 py-6 text-center">No custom foods yet. Add one below.</p>
+{% endif %}
+</div>

@@ -1,0 +1,91 @@
+<!-- food_search_results.html — swapped into #search-results on keyup -->
+{% if not usda_results and not custom_results %}
+  {% if request.GET.q %}
+  <p class="text-sm text-slate-400 mt-2">No results found for "{{ request.GET.q }}".</p>
+  {% endif %}
+{% else %}
+
+<div class="surface-card overflow-hidden mt-2 divide-y divide-white/80">
+
+  {% if custom_results %}
+  <div class="px-4 py-2 bg-emerald-50/70 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+    Your Custom Foods
+  </div>
+  {% for food in custom_results %}
+  <div class="px-4 py-3 bg-white/60 hover:bg-emerald-50/70 transition">
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <span class="font-medium">{{ food.name }}</span>
+        <span class="ml-2 text-xs text-slate-500">
+          {{ food.calories_per_100g }} kcal · {{ food.protein_per_100g }}g P · {{ food.carbs_per_100g }}g C · {{ food.fat_per_100g }}g F &nbsp;/100g
+        </span>
+      </div>
+      <form hx-post="{% url 'tracker:htmx_add_entry' %}"
+            hx-target="#log-section"
+            hx-swap="outerHTML"
+            class="flex items-center gap-2 shrink-0">
+        {% csrf_token %}
+        <input type="hidden" name="food_item_id" value="{{ food.pk }}">
+        <input type="hidden" name="date" value="{{ current_date }}">
+        <input type="number" name="serving_grams" value="100" min="1" step="0.1"
+               class="w-20 text-sm border border-emerald-100 rounded-lg px-2 py-1 bg-white/90 focus:outline-none focus:ring-2 focus:ring-emerald-200">
+        <select name="meal_type" class="text-sm border border-emerald-100 rounded-lg px-2 py-1 bg-white/90 focus:outline-none">
+          <option value="BREAKFAST">Breakfast</option>
+          <option value="LUNCH">Lunch</option>
+          <option value="DINNER">Dinner</option>
+          <option value="SNACK" selected>Snack</option>
+        </select>
+        <button type="submit"
+                class="btn-primary text-sm px-3 py-1">
+          + Log
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if usda_results %}
+  <div class="px-4 py-2 bg-sky-50/80 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+    USDA FoodData Central
+  </div>
+  {% for food in usda_results %}
+  <div class="px-4 py-3 bg-white/60 hover:bg-sky-50/70 transition">
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <span class="font-medium">{{ food.name }}</span>
+        <span class="ml-2 text-xs text-slate-500">
+          {{ food.calories|floatformat:0 }} kcal ·
+          {{ food.protein|floatformat:1 }}g P ·
+          {{ food.carbs|floatformat:1 }}g C ·
+          {{ food.fat|floatformat:1 }}g F &nbsp;/100g
+        </span>
+        <span class="ml-1 text-xs text-sky-400">fdcId {{ food.fdcId }}</span>
+      </div>
+      <form hx-post="{% url 'tracker:htmx_import_and_log' %}"
+            hx-target="#log-section"
+            hx-swap="outerHTML"
+            class="flex items-center gap-2 shrink-0">
+        {% csrf_token %}
+        <input type="hidden" name="fdc_id" value="{{ food.fdcId }}">
+        <input type="hidden" name="date" value="{{ current_date }}">
+        <input type="number" name="serving_grams" value="100" min="1" step="0.1"
+               class="w-20 text-sm border border-sky-100 rounded-lg px-2 py-1 bg-white/90 focus:outline-none focus:ring-2 focus:ring-sky-200">
+        <select name="meal_type" class="text-sm border border-sky-100 rounded-lg px-2 py-1 bg-white/90 focus:outline-none">
+          <option value="BREAKFAST">Breakfast</option>
+          <option value="LUNCH">Lunch</option>
+          <option value="DINNER">Dinner</option>
+          <option value="SNACK" selected>Snack</option>
+        </select>
+        <button type="submit"
+                class="btn-primary text-sm px-3 py-1">
+          + Log
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+</div>
+{% endif %}

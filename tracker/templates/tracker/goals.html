@@ -1,0 +1,56 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Daily Goals{% endblock %}
+
+{% block content %}
+<h1 class="title-display text-3xl font-bold mb-6 text-slate-800">Daily Macro Goals</h1>
+
+{% if goal %}
+<div class="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+  <div class="surface-card p-4 text-center">
+    <p class="text-xs text-rose-500 font-semibold uppercase mb-1">Calories</p>
+    <p class="text-2xl font-bold text-rose-600">{{ goal.calories }}</p>
+    <p class="text-xs text-slate-400">kcal</p>
+  </div>
+  <div class="surface-card p-4 text-center">
+    <p class="text-xs text-sky-500 font-semibold uppercase mb-1">Protein</p>
+    <p class="text-2xl font-bold text-sky-600">{{ goal.protein_g }}g</p>
+  </div>
+  <div class="surface-card p-4 text-center">
+    <p class="text-xs text-amber-600 font-semibold uppercase mb-1">Carbs</p>
+    <p class="text-2xl font-bold text-amber-600">{{ goal.carbs_g }}g</p>
+  </div>
+  <div class="surface-card p-4 text-center">
+    <p class="text-xs text-emerald-600 font-semibold uppercase mb-1">Fat</p>
+    <p class="text-2xl font-bold text-emerald-600">{{ goal.fat_g }}g</p>
+  </div>
+</div>
+{% endif %}
+
+<div class="surface-card p-6 max-w-md">
+  <h2 class="title-display text-2xl font-semibold mb-2 text-slate-700">
+    {% if goal %}Update Goals{% else %}Set Your Goals{% endif %}
+  </h2>
+  <p class="text-xs text-slate-500 mb-4">Validation rule: calories must equal protein×4 + carbs×4 + fat×9.</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="space-y-4">
+      {% for field in form %}
+      <div>
+        <label class="block text-sm font-medium text-slate-600 mb-1" for="{{ field.id_for_label }}">
+          {{ field.label }}
+        </label>
+        {{ field }}
+        {% if field.errors %}
+        <p class="text-rose-500 text-xs mt-1">{{ field.errors.0 }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <button type="submit"
+            class="mt-6 w-full btn-primary text-sm font-medium py-2 px-4">
+      Save Goals
+    </button>
+  </form>
+</div>
+{% endblock %}

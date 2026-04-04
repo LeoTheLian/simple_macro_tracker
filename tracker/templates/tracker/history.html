@@ -1,0 +1,41 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}History{% endblock %}
+
+{% block content %}
+<h1 class="title-display text-3xl font-bold mb-6 text-slate-800">History</h1>
+
+{% if history_items %}
+<div class="surface-card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gradient-to-r from-rose-50 via-peach-50 to-sky-50 text-slate-500 uppercase text-xs">
+      <tr>
+        <th class="px-6 py-3 text-left">Date</th>
+        <th class="px-6 py-3 text-right">Total Calories</th>
+        <th class="px-6 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-white/80">
+      {% for item in history_items %}
+      <tr class="hover:bg-white/60 transition">
+        <td class="px-6 py-3 font-medium">{{ item.date }}</td>
+        <td class="px-6 py-3 text-right text-rose-500 font-semibold">{{ item.calories }} kcal</td>
+        <td class="px-6 py-3 text-right">
+          <a href="/?date={{ item.date }}"
+             class="text-sky-600 hover:text-sky-800 text-xs font-medium">
+            View →
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="surface-card text-center py-16 text-slate-400">
+  <p class="text-4xl mb-3">📭</p>
+  <p>No history yet. Start logging food on the dashboard!</p>
+  <a href="/" class="mt-4 inline-block text-sky-600 hover:underline">Go to Today →</a>
+</div>
+{% endif %}
+{% endblock %}

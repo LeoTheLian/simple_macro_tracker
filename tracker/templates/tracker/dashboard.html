@@ -1,0 +1,44 @@
+{% extends "tracker/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — {{ current_date }}{% endblock %}
+
+{% block content %}
+<div class="surface-card p-5 md:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+  <h1 class="title-display text-3xl font-bold text-slate-800">
+    {% if current_date == today %}Today{% else %}{{ current_date }}{% endif %}
+  </h1>
+  <div class="flex items-center gap-2 text-sm">
+    <a href="?date={{ prev_date }}" class="btn-ghost">← Prev</a>
+    <a href="?" class="btn-primary">Today</a>
+    <a href="?date={{ next_date }}" class="btn-ghost">Next →</a>
+  </div>
+</div>
+
+<!-- Macro Summary -->
+<div id="macro-summary">
+  {% include "tracker/partials/macro_summary.html" %}
+</div>
+
+<!-- Food Search -->
+<div class="mt-8 surface-card p-6">
+  <h2 class="title-display text-2xl font-semibold mb-4">Add Food</h2>
+  <input
+    type="search"
+    name="q"
+    placeholder="Search USDA database or your custom foods…"
+    class="input-soft"
+    hx-get="{% url 'tracker:htmx_search' %}?date={{ current_date }}"
+    hx-trigger="input changed delay:400ms, search"
+    hx-target="#search-results"
+    hx-include="[name='q']"
+  />
+  <div id="search-results" class="mt-3"></div>
+</div>
+
+<!-- Log Table -->
+<div id="log-section" class="mt-8">
+  {% include "tracker/partials/log_table.html" %}
+</div>
+
+{% endblock %}

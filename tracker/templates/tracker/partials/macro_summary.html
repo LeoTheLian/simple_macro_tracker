@@ -1,0 +1,70 @@
+<!-- macro_summary.html — can be returned as OOB swap with hx-swap-oob="true" -->
+<div id="macro-summary" hx-swap-oob="true">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+    {% with cal_pct=progress.calories %}
+    <div class="surface-card p-4">
+      <div class="flex justify-between text-sm mb-1">
+        <span class="font-medium text-slate-600">Calories</span>
+        <span class="text-slate-500">
+          {{ totals.calories }} {% if goal %}/ {{ goal.calories }}{% endif %} kcal
+        </span>
+      </div>
+      <div class="w-full bg-rose-100 rounded-full h-3">
+        <div class="h-3 rounded-full {% if cal_pct >= 100 %}bg-rose-500{% else %}bg-rose-300{% endif %}"
+             style="width: {{ cal_pct }}%"></div>
+      </div>
+      <div class="text-right text-xs text-slate-400 mt-1">{{ cal_pct }}%</div>
+    </div>
+    {% endwith %}
+
+    {% with pct=progress.protein %}
+    <div class="surface-card p-4">
+      <div class="flex justify-between text-sm mb-1">
+        <span class="font-medium text-slate-600">Protein</span>
+        <span class="text-slate-500">
+          {{ totals.protein }}g {% if goal %}/ {{ goal.protein_g }}g{% endif %}
+        </span>
+      </div>
+      <div class="w-full bg-sky-100 rounded-full h-3">
+        <div class="h-3 rounded-full {% if pct >= 100 %}bg-sky-500{% else %}bg-sky-300{% endif %}"
+             style="width: {{ pct }}%"></div>
+      </div>
+      <div class="text-right text-xs text-slate-400 mt-1">{{ pct }}%</div>
+    </div>
+    {% endwith %}
+
+    {% with pct=progress.carbs %}
+    <div class="surface-card p-4">
+      <div class="flex justify-between text-sm mb-1">
+        <span class="font-medium text-slate-600">Carbs</span>
+        <span class="text-slate-500">
+          {{ totals.carbs }}g {% if goal %}/ {{ goal.carbs_g }}g{% endif %}
+        </span>
+      </div>
+      <div class="w-full bg-amber-100 rounded-full h-3">
+        <div class="h-3 rounded-full {% if pct >= 100 %}bg-amber-500{% else %}bg-amber-300{% endif %}"
+             style="width: {{ pct }}%"></div>
+      </div>
+      <div class="text-right text-xs text-slate-400 mt-1">{{ pct }}%</div>
+    </div>
+    {% endwith %}
+
+    {% with pct=progress.fat %}
+    <div class="surface-card p-4">
+      <div class="flex justify-between text-sm mb-1">
+        <span class="font-medium text-slate-600">Fat</span>
+        <span class="text-slate-500">
+          {{ totals.fat }}g {% if goal %}/ {{ goal.fat_g }}g{% endif %}
+        </span>
+      </div>
+      <div class="w-full bg-emerald-100 rounded-full h-3">
+        <div class="h-3 rounded-full {% if pct >= 100 %}bg-emerald-500{% else %}bg-emerald-300{% endif %}"
+             style="width: {{ pct }}%"></div>
+      </div>
+      <div class="text-right text-xs text-slate-400 mt-1">{{ pct }}%</div>
+    </div>
+    {% endwith %}
+
+  </div>
+</div>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Macro Tracker{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <style>
+    :root {
+      --rose-100: #ffe7ef;
+      --peach-100: #ffeeda;
+      --mint-100: #dcf6ee;
+      --sky-100: #e7f2ff;
+      --ink-900: #263238;
+      --ink-700: #4f5b66;
+      --white-soft: #ffffffcc;
+      --line: #ffffff8a;
+      --shadow-soft: 0 10px 34px rgba(80, 96, 110, 0.12);
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      color: var(--ink-900);
+      background:
+        radial-gradient(circle at 7% 18%, var(--rose-100) 0, transparent 42%),
+        radial-gradient(circle at 88% 12%, var(--peach-100) 0, transparent 44%),
+        radial-gradient(circle at 20% 92%, var(--mint-100) 0, transparent 40%),
+        radial-gradient(circle at 95% 84%, var(--sky-100) 0, transparent 34%),
+        linear-gradient(180deg, #fffdfb 0%, #f8fbff 100%);
+      min-height: 100vh;
+    }
+
+    .title-display {
+      font-family: 'Fraunces', serif;
+      letter-spacing: 0.01em;
+    }
+
+    .glass-nav {
+      background: linear-gradient(120deg, #8ec5b9, #9db4df);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .surface-card {
+      background: var(--white-soft);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(3px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(120deg, #89c9ba, #8eaee7);
+      color: #fff;
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      font-weight: 600;
+      transition: transform 0.12s ease, filter 0.18s ease;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.03);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: #ffffffa8;
+      border: 1px solid #ffffff;
+      color: var(--ink-700);
+      border-radius: 999px;
+      padding: 0.5rem 0.95rem;
+      font-weight: 600;
+    }
+
+    .btn-ghost:hover {
+      background: #fff;
+    }
+
+    .input-soft {
+      width: 100%;
+      border-radius: 0.7rem;
+      border: 1px solid #d6e3ef;
+      background: #ffffffd4;
+      padding: 0.58rem 0.72rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .input-soft:focus {
+      border-color: #88b9e3;
+      box-shadow: 0 0 0 3px #d9ebff;
+    }
+  </style>
+  <script>
+    document.addEventListener('htmx:configRequest', (e) => {
+      e.detail.headers['X-CSRFToken'] = document.querySelector('meta[name="csrf-token"]').content;
+    });
+  </script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="glass-nav text-white">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="{% url 'tracker:dashboard' %}" class="title-display text-2xl font-bold tracking-tight">Macro Tracker</a>
+      <div class="flex gap-6 text-sm font-medium">
+        <a href="{% url 'tracker:dashboard' %}" class="hover:text-rose-100 transition">Today</a>
+        <a href="{% url 'tracker:history' %}" class="hover:text-rose-100 transition">History</a>
+        <a href="{% url 'tracker:foods' %}" class="hover:text-rose-100 transition">My Foods</a>
+        <a href="{% url 'tracker:goals' %}" class="hover:text-rose-100 transition">Goals</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-8 md:py-10">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

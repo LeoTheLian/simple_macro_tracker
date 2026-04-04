@@ -1,0 +1,72 @@
+<!-- log_table.html -->
+<div id="log-section">
+  <div class="surface-card overflow-hidden">
+    <div class="px-6 py-4 border-b border-white/70 flex items-center justify-between">
+      <h2 class="title-display text-2xl font-semibold text-slate-700">Today's Log</h2>
+      <span class="text-sm text-slate-500">{{ entries|length }} item{{ entries|length|pluralize }}</span>
+    </div>
+
+    {% if entries %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gradient-to-r from-rose-50 via-sky-50 to-emerald-50 text-slate-500 uppercase text-xs">
+          <tr>
+            <th class="px-4 py-3 text-left">Food</th>
+            <th class="px-4 py-3 text-left">Meal</th>
+            <th class="px-4 py-3 text-right">g</th>
+            <th class="px-4 py-3 text-right">Cal</th>
+            <th class="px-4 py-3 text-right">Protein</th>
+            <th class="px-4 py-3 text-right">Carbs</th>
+            <th class="px-4 py-3 text-right">Fat</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/80">
+          {% for entry in entries %}
+          {% with m=entry.macros %}
+          <tr class="hover:bg-white/60 transition">
+            <td class="px-4 py-3 font-medium">
+              {{ entry.food_item.name }}
+              {% if entry.food_item.source == 'USDA' %}
+              <span class="ml-1 text-xs text-sky-600 font-normal">USDA</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-slate-500 capitalize">{{ entry.get_meal_type_display }}</td>
+            <td class="px-4 py-3 text-right text-slate-500">{{ entry.serving_grams }}</td>
+            <td class="px-4 py-3 text-right font-medium text-rose-500">{{ m.calories }}</td>
+            <td class="px-4 py-3 text-right text-sky-600">{{ m.protein }}g</td>
+            <td class="px-4 py-3 text-right text-amber-600">{{ m.carbs }}g</td>
+            <td class="px-4 py-3 text-right text-emerald-600">{{ m.fat }}g</td>
+            <td class="px-4 py-3 text-right">
+              <button
+                hx-delete="{% url 'tracker:htmx_delete_entry' entry.pk %}"
+                hx-target="#log-section"
+                hx-swap="outerHTML"
+                hx-confirm="Remove {{ entry.food_item.name }} from log?"
+                class="text-rose-400 hover:text-rose-600 text-xs font-medium"
+              >Remove</button>
+            </td>
+          </tr>
+          {% endwith %}
+          {% endfor %}
+        </tbody>
+        <tfoot class="bg-white/70 font-semibold text-sm border-t border-white/80">
+          <tr>
+            <td class="px-4 py-3" colspan="3">Totals</td>
+            <td class="px-4 py-3 text-right text-rose-500">{{ totals.calories }}</td>
+            <td class="px-4 py-3 text-right text-sky-600">{{ totals.protein }}g</td>
+            <td class="px-4 py-3 text-right text-amber-600">{{ totals.carbs }}g</td>
+            <td class="px-4 py-3 text-right text-emerald-600">{{ totals.fat }}g</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% else %}
+    <div class="px-6 py-10 text-center text-slate-400">
+      <p class="text-4xl mb-2">🍽️</p>
+      <p>No food logged yet. Search above to add your first item.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
