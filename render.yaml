@@ -27,4 +27,3 @@ services:
   - type: pserv
     name: simple-macro-tracker-db
     plan: free
-    postgresMajorVersion: "16"
