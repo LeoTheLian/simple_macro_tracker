@@ -2,6 +2,7 @@ import json
 from datetime import date, timedelta
 from decimal import Decimal
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.dateparse import parse_date
@@ -26,9 +27,9 @@ def _parse_date_param(request) -> date:
     return date.today()
 
 
-def _get_current_goal() -> DailyGoal | None:
-    """Return the most recent DailyGoal, or None if none exist."""
-    return DailyGoal.objects.order_by('-effective_date').first()
+def _get_current_goal(user) -> DailyGoal | None:
+    """Return the most recent DailyGoal for the given user, or None."""
+    return DailyGoal.objects.filter(user=user).order_by('-effective_date').first()
 
 
 def _totals_for_entries(entries) -> dict:
@@ -52,6 +53,7 @@ def _progress(current, goal_value) -> int:
 # Dashboard
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_GET
 def dashboard(request):
     current_date = _parse_date_param(request)
@@ -60,12 +62,12 @@ def dashboard(request):
 
     entries = (
         LogEntry.objects
-        .filter(date=current_date)
+        .filter(user=request.user, date=current_date)
         .select_related('food_item')
         .order_by('meal_type', 'logged_at')
     )
     totals = _totals_for_entries(entries)
-    goal = _get_current_goal()
+    goal = _get_current_goal(request.user)
 
     context = {
         'current_date': current_date,
@@ -90,6 +92,7 @@ def dashboard(request):
 # HTMX: food search
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_GET
 def htmx_search(request):
     query = request.GET.get('q', '').strip()
@@ -116,6 +119,7 @@ def htmx_search(request):
 # HTMX: add log entry
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_POST
 def htmx_add_entry(request):
     current_date = _parse_date_param(request)
@@ -146,6 +150,7 @@ def htmx_add_entry(request):
             )
 
     LogEntry.objects.create(
+        user=request.user,
         date=log_date,
         food_item=food_item,
         serving_grams=serving_grams,
@@ -159,9 +164,10 @@ def htmx_add_entry(request):
 # HTMX: delete log entry
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_http_methods(['DELETE'])
 def htmx_delete_entry(request, entry_id):
-    entry = get_object_or_404(LogEntry, pk=entry_id)
+    entry = get_object_or_404(LogEntry, pk=entry_id, user=request.user)
     log_date = entry.date
     entry.delete()
     return _render_log_and_summary(request, log_date)
@@ -171,6 +177,7 @@ def htmx_delete_entry(request, entry_id):
 # HTMX: import USDA food and immediately log it
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_POST
 def htmx_import_and_log(request):
     """
@@ -194,6 +201,7 @@ def htmx_import_and_log(request):
     log_date = parse_date(log_date_str) or date.today()
 
     LogEntry.objects.create(
+        user=request.user,
         date=log_date,
         food_item=food_item,
         serving_grams=serving_grams,
@@ -207,6 +215,7 @@ def htmx_import_and_log(request):
 # History
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_GET
 def history(request):
     from django.db.models import Sum
@@ -215,6 +224,7 @@ def history(request):
 
     days = (
         LogEntry.objects
+        .filter(user=request.user)
         .values('date')
         .order_by('-date')
         .distinct()
@@ -224,7 +234,7 @@ def history(request):
     history_items = []
     for day in days:
         d = day['date']
-        entries = LogEntry.objects.filter(date=d).select_related('food_item')
+        entries = LogEntry.objects.filter(user=request.user, date=d).select_related('food_item')
         totals = _totals_for_entries(entries)
         history_items.append({'date': d, 'calories': totals['calories']})
 
@@ -235,6 +245,7 @@ def history(request):
 # Custom Foods
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_http_methods(['GET', 'POST'])
 def foods(request):
     if request.method == 'POST':
@@ -256,6 +267,7 @@ def foods(request):
     return render(request, 'tracker/foods.html', {'custom_foods': custom_foods, 'form': form})
 
 
+@login_required
 @require_http_methods(['DELETE'])
 def delete_food(request, food_id):
     food = get_object_or_404(FoodItem, pk=food_id, source=FoodItem.Source.CUSTOM)
@@ -272,16 +284,18 @@ def delete_food(request, food_id):
 # Goals
 # ---------------------------------------------------------------------------
 
+@login_required
 @require_http_methods(['GET', 'POST'])
 def goals(request):
-    latest_goal = _get_current_goal()
+    latest_goal = _get_current_goal(request.user)
 
     if request.method == 'POST':
         form = DailyGoalForm(request.POST, instance=latest_goal)
         if form.is_valid():
             obj = form.save(commit=False)
-            # If effective_date already has a goal, update it; else create new
-            existing = DailyGoal.objects.filter(effective_date=obj.effective_date).first()
+            obj.user = request.user
+            # If effective_date already has a goal for this user, update it; else create new
+            existing = DailyGoal.objects.filter(user=request.user, effective_date=obj.effective_date).first()
             if existing and existing != latest_goal:
                 for field in ['calories', 'protein_g', 'carbs_g', 'fat_g']:
                     setattr(existing, field, getattr(obj, field))
@@ -306,12 +320,12 @@ def goals(request):
 def _render_log_and_summary(request, log_date):
     entries = (
         LogEntry.objects
-        .filter(date=log_date)
+        .filter(user=request.user, date=log_date)
         .select_related('food_item')
         .order_by('meal_type', 'logged_at')
     )
     totals = _totals_for_entries(entries)
-    goal = _get_current_goal()
+    goal = _get_current_goal(request.user)
     progress = {
         'calories': _progress(totals['calories'], goal.calories if goal else 0),
         'protein': _progress(totals['protein'], goal.protein_g if goal else 0),

@@ -10,7 +10,7 @@
   </h1>
   <div class="flex items-center gap-2 text-sm">
     <a href="?date={{ prev_date }}" class="btn-ghost">← Prev</a>
-    <a href="?" class="btn-primary">Today</a>
+    <a href="?" id="today-btn" class="btn-primary">Today</a>
     <a href="?date={{ next_date }}" class="btn-ghost">Next →</a>
   </div>
 </div>
@@ -41,4 +41,39 @@
   {% include "tracker/partials/log_table.html" %}
 </div>
 
+<script>
+(function () {
+  function localDateStr() {
+    const d = new Date();
+    return [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, '0'),
+      String(d.getDate()).padStart(2, '0'),
+    ].join('-');
+  }
+
+  const displayedDate = "{{ current_date|date:'Y-m-d' }}";
+
+  function goToToday() {
+    window.location.replace('?date=' + localDateStr());
+  }
+
+  // Always point the "Today" button at the browser's local date (fixes UTC timezone skew)
+  const todayBtn = document.getElementById('today-btn');
+  if (todayBtn) todayBtn.href = '?date=' + localDateStr();
+
+  // Only auto-advance when we're viewing today's log
+  if (displayedDate === localDateStr()) {
+    // Redirect at local midnight so the new day's (empty) log loads automatically
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    setTimeout(goToToday, midnight - now + 500);
+
+    // Also catch tabs that were left open overnight and regain focus after midnight
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && localDateStr() !== displayedDate) goToToday();
+    });
+  }
+})();
+</script>
 {% endblock %}

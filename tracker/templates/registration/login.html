@@ -1,0 +1,44 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Log In — Macro Tracker{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto mt-12">
+  <div class="surface-card p-8">
+    <h1 class="title-display text-2xl font-bold mb-6 text-center">Log In</h1>
+
+    <form method="post">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <input type="{{ field.field.widget.input_type }}"
+               name="{{ field.html_name }}"
+               id="{{ field.id_for_label }}"
+               value="{{ field.value|default:'' }}"
+               class="input-soft"
+               {% if field.field.required %}required{% endif %}>
+        {% for error in field.errors %}
+        <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+      {% if form.non_field_errors %}
+      <div class="mb-4">
+        {% for error in form.non_field_errors %}
+        <p class="text-red-500 text-sm">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn-primary w-full mt-2">Log in</button>
+    </form>
+
+    <p class="text-center text-sm text-gray-500 mt-5">
+      Don't have an account? <a href="{% url 'signup' %}" class="font-semibold text-blue-600 hover:underline">Sign up</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
