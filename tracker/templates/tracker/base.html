@@ -107,11 +107,18 @@
   <nav class="glass-nav text-white">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <a href="{% url 'tracker:dashboard' %}" class="title-display text-2xl font-bold tracking-tight">Macro Tracker</a>
-      <div class="flex gap-6 text-sm font-medium">
+      <div class="flex gap-6 text-sm font-medium items-center">
+        {% if user.is_authenticated %}
         <a href="{% url 'tracker:dashboard' %}" class="hover:text-rose-100 transition">Today</a>
         <a href="{% url 'tracker:history' %}" class="hover:text-rose-100 transition">History</a>
         <a href="{% url 'tracker:foods' %}" class="hover:text-rose-100 transition">My Foods</a>
         <a href="{% url 'tracker:goals' %}" class="hover:text-rose-100 transition">Goals</a>
+        <span class="opacity-75">{{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="hover:text-rose-100 transition">Log out</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="hover:text-rose-100 transition">Log in</a>
+        <a href="{% url 'signup' %}" class="hover:text-rose-100 transition">Sign up</a>
+        {% endif %}
       </div>
     </div>
   </nav>

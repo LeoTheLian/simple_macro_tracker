@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -42,6 +43,9 @@ class LogEntry(models.Model):
         DINNER = 'DINNER', 'Dinner'
         SNACK = 'SNACK', 'Snack'
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='log_entries',
+    )
     date = models.DateField(default=timezone.now)
     food_item = models.ForeignKey(FoodItem, on_delete=models.CASCADE, related_name='log_entries')
     serving_grams = models.DecimalField(max_digits=8, decimal_places=1)
@@ -62,7 +66,10 @@ class LogEntry(models.Model):
 
 
 class DailyGoal(models.Model):
-    effective_date = models.DateField(default=timezone.now, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='daily_goals',
+    )
+    effective_date = models.DateField(default=timezone.now)
     calories = models.PositiveIntegerField(default=2000)
     protein_g = models.PositiveIntegerField(default=150)
     carbs_g = models.PositiveIntegerField(default=200)
@@ -70,6 +77,9 @@ class DailyGoal(models.Model):
 
     class Meta:
         ordering = ['-effective_date']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'effective_date'], name='unique_user_goal_date'),
+        ]
 
     def __str__(self):
         return f'Goal from {self.effective_date}: {self.calories} kcal'

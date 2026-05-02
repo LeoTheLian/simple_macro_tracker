@@ -12,11 +12,12 @@ class FoodItemAdmin(admin.ModelAdmin):
 
 @admin.register(LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
-    list_display = ['date', 'food_item', 'serving_grams', 'meal_type', 'logged_at']
-    list_filter = ['date', 'meal_type']
+    list_display = ['user', 'date', 'food_item', 'serving_grams', 'meal_type', 'logged_at']
+    list_filter = ['user', 'date', 'meal_type']
     date_hierarchy = 'date'
 
 
 @admin.register(DailyGoal)
 class DailyGoalAdmin(admin.ModelAdmin):
-    list_display = ['effective_date', 'calories', 'protein_g', 'carbs_g', 'fat_g']
+    list_display = ['user', 'effective_date', 'calories', 'protein_g', 'carbs_g', 'fat_g']
+    list_filter = ['user']
